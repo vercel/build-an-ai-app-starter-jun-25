@@ -9,8 +9,9 @@ const essay = fs.readFileSync("app/(1-extraction)/essay.txt", "utf-8");
 
 async function main() {
   const result = await generateText({
-    model: gateway("openai/gpt-4.1-nano"),
-    prompt: `Extract all the names mentioned in this essay. List them separated by commas.
+    model: gateway("openai/gpt-4.1"),
+    prompt: `What is the key takeaway of this piece in 50 words?
+
 Essay:
 ${essay}`,
   });

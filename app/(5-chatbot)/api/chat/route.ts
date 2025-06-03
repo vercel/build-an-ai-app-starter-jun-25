@@ -1,26 +1,25 @@
 import { gateway } from '@vercel/ai-sdk-gateway'
-import { streamText, convertToModelMessages } from 'ai' 
-import type { UIMessage } from '@ai-sdk/react'; // import UIMessage type
+import { streamText, convertToModelMessages, UIMessage } from 'ai'
 
-// Allow streaming responses up to 30 seconds
 export const maxDuration = 30
 
 export async function POST(req: Request) {
 	try {
-		// Extract the `messages` array from the body of the request
 		const { messages }: { messages: UIMessage[] } = await req.json()
 
-		// Call the language model
 		const result = await streamText({
-			model: gateway('openai/gpt-4.1-nano'), // Use openai/gpt-4.1-nano for faster responses
+			model: gateway('openai/o3'),
+			// Add system prompt here
+			system: `You are a support assistant for TechCorp's cloud platform.
+  Focus on helping users troubleshoot deployment issues, API usage, and account settings.
+  Be concise but thorough. Link to documentation at docs.techcorp.com when relevant.
+  If a question is outside your knowledge area, politely redirect to contact@techcorp.com.`,
 			messages: convertToModelMessages(messages),
 		})
 
-		// Respond with the stream
 		return result.toUIMessageStreamResponse()
 	} catch (error) {
 		console.error('Chat API error:', error)
-		// Generic error response
 		return new Response(JSON.stringify({ error: 'Failed to generate chat response.' }), {
 			status: 500,
 			headers: { 'Content-Type': 'application/json' },

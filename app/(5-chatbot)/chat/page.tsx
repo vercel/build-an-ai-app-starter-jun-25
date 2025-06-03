@@ -1,6 +1,7 @@
 'use client'
 
 import { useChat } from '@ai-sdk/react'
+import { getToolInvocations } from 'ai'
 
 export default function Chat() {
 	// useChat hook manages messages, input state, submission
@@ -16,11 +17,24 @@ export default function Chat() {
 					<div key={message.id} className="whitespace-pre-wrap">
 						{message.role === 'user' ? 'User: ' : 'AI: '}
 						{message.parts.map((part, i) => {
-            switch (part.type) {
-              case 'text':
-                return <div key={`${message.id}-${i}`}>{part.text}</div>;
-            }
-          })}
+              switch (part.type) {
+                case 'text':
+                  return <div key={`${message.id}-${i}`}>{part.text}</div>;
+              }
+            })}
+            {getToolInvocations(message).map(
+              (toolInvocation) => {
+                return (
+                  <div
+                    key={toolInvocation.toolCallId}
+                    className="text-xs text-gray-500 ml-4 mt-2 p-2 bg-gray-100 rounded"
+                  >
+                    {/* Display raw tool call/result details for understanding the flow */}
+                    <pre>{JSON.stringify(toolInvocation, null, 2)}</pre>
+                  </div>
+                )
+              }
+            )}
 					</div>
 				),
 			)}

@@ -1,5 +1,6 @@
 import { gateway } from '@vercel/ai-sdk-gateway'
-import { streamText, convertToModelMessages, UIMessage } from 'ai'
+import { streamText, convertToModelMessages, type UIMessage } from 'ai'
+import { getWeather } from './tools'
 
 export const maxDuration = 30
 
@@ -8,13 +9,11 @@ export async function POST(req: Request) {
 		const { messages }: { messages: UIMessage[] } = await req.json()
 
 		const result = await streamText({
-			model: gateway('openai/o3'),
-			// Add system prompt here
-			system: `You are a support assistant for TechCorp's cloud platform.
-  Focus on helping users troubleshoot deployment issues, API usage, and account settings.
-  Be concise but thorough. Link to documentation at docs.techcorp.com when relevant.
-  If a question is outside your knowledge area, politely redirect to contact@techcorp.com.`,
+			model: gateway('openai/gpt-4.1-nano'),
+			system: `You are a helpful assistant that can answer questions about the weather.`, 
 			messages: convertToModelMessages(messages),
+			// Register the 'getWeather' tool with the streamText call
+			tools: { getWeather },
 		})
 
 		return result.toUIMessageStreamResponse()

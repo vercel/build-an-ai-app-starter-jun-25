@@ -6,6 +6,10 @@ import {
   CloudFog,
   CloudLightning,
 } from "lucide-react";
+import { chatStore } from "./store";
+import { useChat } from "@ai-sdk/react"
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
 
 export interface WeatherData {
   city: string;
@@ -26,7 +30,19 @@ export default function Weather({
 }: {
   weatherData?: WeatherData;
 }) {
-  console.log(weatherData);
+  // Access the SAME chat instance via ID to get the append function
+	const { append } = useChat({ chatStore, chatId: "weather-chat" });
+
+  const [buttonClicked, setButtonClicked] = useState(false)
+
+	const handleButtonClick = () => {
+		append({
+			parts: [{ text: "Get weather in a random place", type: "text" }],
+			role: "user"
+		});
+		setButtonClicked(true) // Disable button after click
+	}
+  
   const getWeatherIcon = (code: number) => {
     switch (true) {
       case code === 0:
@@ -95,6 +111,15 @@ export default function Weather({
         <CloudFog size={20} aria-hidden="true" />
         <span className="ml-2">Humidity: {weatherData.humidity}%</span>
       </div>
+      <Button
+				onClick={handleButtonClick}
+				disabled={buttonClicked}
+				className="mt-2 bg-gradient-to-b from-blue-400 to-blue-600"
+				variant="outline" // Example styling
+				size="sm" // Example styling
+			>
+				{buttonClicked ? 'Asked for random...' : 'Random City?'}
+			</Button>
     </div>
   );
 }
